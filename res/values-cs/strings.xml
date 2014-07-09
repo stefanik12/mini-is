@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Mini IS</string>
+    <string name="ID_text">ID</string>
+    <string name="mails_text">Pošta</string>
+    <string name="grades_text">Známky</string>
+    <string name="note_text">Pozn. blok</string>
+    <string name="freq_text">Frekvence aktualizacii</string>
+    <string name="exams_text">Skoušky</string>
+    <string name="text_30mins">30 minút</string>
+    <string name="text_1hour">1 hodina</string>
+    <string name="text_2hours">2 hodiny</string>
+    <string name="text_3hours">3 hodiny</string>
+    <string name="text_6hours">6 hodín</string>
+    <string name="text_12hours">12 hodín</string>
+    <string name="text_1day">1 den</string>
+    <string name="text_auto">Spustit automaticky</string>
+
+</resources>

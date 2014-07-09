@@ -20,7 +20,7 @@ public class StartMyServiceAtBootReceiver extends BroadcastReceiver
         		return;
         	}
         	
-        	String id = settings.getString("ID", "9rrv8k4cq5").toString();
+        	String id = settings.getString("ID", "").toString();
         	int freq = settings.getInt("Frequency", 1);	
         	boolean sw1 = settings.getBoolean("Switch 1", false);
         	boolean sw2 = settings.getBoolean("Switch 2", false);

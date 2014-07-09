@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Mini IS</string>
+    <string name="ID_text">ID</string>
+    <string name="mails_text">Mails</string>
+    <string name="grades_text">Grades</string>
+    <string name="note_text">Notepad</string>
+    <string name="freq_text">Update frequency</string>
+    <string name="exams_text">Exams</string>
+    <string name="text_30mins">30 mins</string>
+    <string name="text_1hour">1 hour</string>
+    <string name="text_2hours">2 hours</string>
+    <string name="text_3hours">3 hours</string>
+    <string name="text_6hours">6 hours</string>
+    <string name="text_12hours">12 hours</string>
+    <string name="text_1day">1 day</string>
+    <string name="text_auto">Start automatically</string>
+
+</resources>

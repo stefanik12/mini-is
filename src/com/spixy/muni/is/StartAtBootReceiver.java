@@ -4,26 +4,13 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.util.Log;
 
 public class StartAtBootReceiver extends BroadcastReceiver
-{
-	public StartAtBootReceiver()
-	{
-		Log.w("BroadcastReceiver","BroadcastReceiver started 1");
-	}
+{	
 	
 	@Override
     public void onReceive(Context context, Intent intent)
-	{
-		Log.w("BroadcastReceiver","BroadcastReceiver started 2");
-		
-		if (context == null)
-			Log.e("BroadcastReceiver", "context = null");
-		
-		if (intent == null)
-			Log.e("BroadcastReceiver", "intent = null");
-		
+	{	
 		if (context == null || intent == null)
 			return;
 		
@@ -47,7 +34,7 @@ public class StartAtBootReceiver extends BroadcastReceiver
         	settings = null;
         	
         	try {
-    			Thread.sleep(10000); // 10 sek.
+    			Thread.sleep(5000); // 5 sek.
     		} catch (InterruptedException e) {
     			return;
     		}

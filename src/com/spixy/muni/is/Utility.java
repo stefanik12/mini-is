@@ -20,6 +20,9 @@ public class Utility {
 	
 	public static boolean IsInArray(String newNS, String[] oldNS)
 	{
+		if (oldNS == null)
+			return false;
+		
 		int length = oldNS.length;
 		
 		for (int i=0; i<length; i++)
@@ -27,6 +30,7 @@ public class Utility {
 			if (newNS.equals(oldNS[i]))
 				return true;
 		}
+		
 		return false;
 	}
 

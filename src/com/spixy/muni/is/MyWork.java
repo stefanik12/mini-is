@@ -37,13 +37,6 @@ public class MyWork extends Thread
 		ExamsFeed examsFeed = null;
 		List<String> list = new LinkedList<String>();
 		int flag;
-			
-		if (mails)
-		{
-			try {
-				mailsFeed = new MailsFeed(id);
-			} catch (MalformedURLException e) { }
-		}
 		
 		if (grades)
 		{
@@ -51,6 +44,13 @@ public class MyWork extends Thread
 				gradesFeed = new GradesFeed(id);
 			} catch (MalformedURLException e) { }
 		}
+		
+		if (mails)
+		{
+			try {
+				mailsFeed = new MailsFeed(id);
+			} catch (MalformedURLException e) { }
+		}	
 		
 		if (notepad)
 		{
@@ -73,17 +73,6 @@ public class MyWork extends Thread
 			flag = 0;
 			list.clear();
 			
-			if (mails)
-			{
-				try {
-					list.addAll( mailsFeed.Run() );
-					if (mailsFeed.GetItems() > 0)
-						flag += 1;
-				} catch (Exception e1) {
-					Log.e("MailsFeed", e1.getMessage());
-				}
-			}
-			
 			if (grades)
 			{
 				try {
@@ -94,6 +83,17 @@ public class MyWork extends Thread
 					Log.e("GradesFeed", e1.getMessage());
 				}
 			}
+			
+			if (mails)
+			{
+				try {
+					list.addAll( mailsFeed.Run() );
+					if (mailsFeed.GetItems() > 0)
+						flag += 1;
+				} catch (Exception e1) {
+					Log.e("MailsFeed", e1.getMessage());
+				}
+			}	
 			
 			if (notepad)
 			{

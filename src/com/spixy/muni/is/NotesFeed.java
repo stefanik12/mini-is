@@ -101,7 +101,7 @@ public class NotesFeed {
 		int s = 0;
 		int page = 0;
 		
-		while (s < 30)
+		while (s < 100)
 		{
 			try
 			{

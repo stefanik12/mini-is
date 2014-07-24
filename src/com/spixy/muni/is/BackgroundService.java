@@ -23,37 +23,30 @@ public class BackgroundService extends Service
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId)
 	{
-		if (intent == null)
+		if (intent != null)
 		{
-    		this.stopSelf();
-    		return -1;
-		}
-			
-		if (intent.hasExtra("ID"))
-	    {
-	    	id = intent.getStringExtra("ID");
-        }
+			if (intent.hasExtra("ID"))
+				id = intent.getStringExtra("ID");
 		
-		mails = intent.getBooleanExtra("mails", mails);
-    	grades = intent.getBooleanExtra("grades", grades);
-    	notepad = intent.getBooleanExtra("notepad", notepad);
-    	exams = intent.getBooleanExtra("exams", exams);
+			mails = intent.getBooleanExtra("mails", mails);
+			grades = intent.getBooleanExtra("grades", grades);
+			notepad = intent.getBooleanExtra("notepad", notepad);
+			exams = intent.getBooleanExtra("exams", exams);
 
-	    if (intent.hasExtra("timer"))
-	    {
-	    	int timerID = intent.getIntExtra("timer", 1);
-	    	
-	    	switch (timerID)
+			if (intent.hasExtra("timer"))
 			{
-				case 0: timer = 1800; break; // 30 minutes
-				case 1: timer = 3600; break; // 1 hour
-				case 2: timer = 7200; break; // 2 hours
-				case 3: timer = 10800; break; // 3 hours
-				case 4: timer = 21600; break; // 6 hours
-				case 5: timer = 43200; break; // 12 hours
-				case 6: timer = 86400; break; // 24 hours
+				switch (intent.getIntExtra("timer", 1))
+				{
+					case 0: timer = 1800; break; // 30 minutes
+					case 1: timer = 3600; break; // 1 hour = default
+					case 2: timer = 7200; break; // 2 hours
+					case 3: timer = 10800; break; // 3 hours
+					case 4: timer = 21600; break; // 6 hours
+					case 5: timer = 43200; break; // 12 hours
+					case 6: timer = 86400; break; // 24 hours
+				}
 			}
-        }
+		}
 	    
 	    if (id.length() != 10)
 	    {

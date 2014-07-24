@@ -62,7 +62,7 @@ public class MainActivity extends Activity
 	    
     	SharedPreferences settings = getSharedPreferences("UserInfo", 0);
     	
-    	et.setText(settings.getString("ID", "9rrv8k4cq5").toString());
+    	et.setText(settings.getString("ID", "").toString());
     	bar.setProgress(settings.getInt("Frequency", 1));
     	check.setChecked(settings.getBoolean("Autostart", false));
     	sw1.setChecked(settings.getBoolean("Switch 1", false));

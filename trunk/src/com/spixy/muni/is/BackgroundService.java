@@ -4,15 +4,15 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 
-public class MyService extends Service
+public class BackgroundService extends Service
 {
 	private boolean mails = false, grades = false, notepad = false, exams = false;
     private int timer = 3600;
     private String id = "";
-    private Thread t2 = null;
-    private MyWork work;
+    private MyWork work = null;
     
-	public MyService() {
+	public BackgroundService() {
+		work = new MyWork(this);
     }
 	
 	@Override
@@ -41,9 +41,9 @@ public class MyService extends Service
 
 	    if (intent.hasExtra("timer"))
 	    {
-	    	timer = intent.getIntExtra("timer", -1);
+	    	int timerID = intent.getIntExtra("timer", 1);
 	    	
-	    	switch (timer)
+	    	switch (timerID)
 			{
 				case 0: timer = 1800; break; // 30 minutes
 				case 1: timer = 3600; break; // 1 hour
@@ -52,45 +52,53 @@ public class MyService extends Service
 				case 4: timer = 21600; break; // 6 hours
 				case 5: timer = 43200; break; // 12 hours
 				case 6: timer = 86400; break; // 24 hours
-				
-				default: timer = 3600; break; // 1 hour
 			}
         }
-
-    	if (id.length() == 0)
+	    
+	    if (id.length() != 10)
+	    {
+	    	this.stopSelf();
+    		return -1;
+	    }
+    	
+    	if (mails==false && grades==false && notepad==false && exams==false)
     	{
     		this.stopSelf();
     		return -1;
     	}
     	
-    	if (mails==false && grades==false && notepad==false)
+    	if (work.isAlive())
     	{
-    		this.stopSelf();
-    		return -1;
+    		work.running = false;
+    		work.interrupt();
     	}
     	
-		work = new MyWork(id);
+    	work = new MyWork(this);
+    	work.id = id;
     	work.mails = mails;
     	work.grades = grades;
     	work.notepad = notepad;;
     	work.exams = exams;
     	work.timer = timer;
-    	work.parent = this;
-    	
-        if (t2 != null && t2.isAlive())
-        	t2.interrupt();
-        
-		t2 = new Thread(work);
-		t2.start();
+    	work.start();
 
 	    return Service.START_STICKY;
+	}
+	
+	public void Interrupt()
+	{
+		if (work.isAlive())
+			work.interrupt();
 	}
 
 	@Override
 	public void onDestroy()
 	{
-		if (t2 != null && t2.isAlive())
-        	t2.interrupt();
+		if (work.isAlive())
+    	{
+    		work.running = false;
+    		work.interrupt();
+    	}
 		
 		super.onDestroy();
 	}

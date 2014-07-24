@@ -16,6 +16,7 @@ public class MailsFeed {
 	private static final String postfix = ";a=52";
 	private String[] oldMails = new String[10];
 	private URL www;
+	private int items = 0;
 	
 	public MailsFeed(String ID) throws MalformedURLException {
 		www = new URL(prefix + ID + postfix);
@@ -31,11 +32,17 @@ public class MailsFeed {
 		return new HashSet<String>(Arrays.asList(oldMails));
 	}
 	
+	public int GetItems()
+	{
+		return items;
+	}
+	
 	public List<String> Run() throws IOException
 	{
 		String[] newMails = new String[10];
 		String inputLine = null;
         String fullText = "";
+        items = 0;
 			
 		URLConnection yc = www.openConnection();
 	    BufferedReader in = new BufferedReader(new InputStreamReader(yc.getInputStream()));
@@ -69,7 +76,7 @@ public class MailsFeed {
 	    	endI = fullText.indexOf("</LI>");
 	    	txt2 = fullText.substring(startI, endI);
 	    	
-	    	newMails[i] = "MAIL: " + txt1 + " - " + txt2;	    	
+	    	newMails[i] = txt1 + " - " + txt2;	    	
 	    	fullText = fullText.substring(endI + 5);	    	
 	    	i++;
 	    }
@@ -78,6 +85,7 @@ public class MailsFeed {
 	    oldMails = newMails;
 	    newMails = null;
 	    
+	    items = results.size();	    
 	    return results;
 	}
 }

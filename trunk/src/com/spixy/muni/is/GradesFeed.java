@@ -16,6 +16,7 @@ public class GradesFeed {
 	private static final String postfix = ";a=4";
 	private String[] oldGrades = new String[10];
 	private URL www;
+	private int items = 0;
 	
 	public GradesFeed(String ID) throws MalformedURLException {
 		www = new URL(prefix + ID + postfix);
@@ -31,11 +32,17 @@ public class GradesFeed {
 		return new HashSet<String>(Arrays.asList(oldGrades));
 	}
 	
+	public int GetItems()
+	{
+		return items;
+	}
+	
 	public List<String> Run() throws IOException
 	{
 		String[] newGrades = new String[10];
 		String inputLine = null;
         String fullText = "";
+        items = 0;
 			
 		URLConnection yc = www.openConnection();
 	    BufferedReader in = new BufferedReader(new InputStreamReader(yc.getInputStream()));
@@ -74,6 +81,7 @@ public class GradesFeed {
 	    oldGrades = newGrades;
 	    newGrades = null;
 	    
+	    items = results.size();
 	    return results;
 	}
 

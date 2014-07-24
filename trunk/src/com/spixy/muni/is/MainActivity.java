@@ -1,12 +1,15 @@
 package com.spixy.muni.is;
 
 import com.spixy.muni.is.R;
-import com.spixy.muni.is.MyService;
+import com.spixy.muni.is.BackgroundService;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -19,6 +22,8 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 public class MainActivity extends Activity
 {
     private Intent mServiceIntent;
+    private CheckID checkID;
+    private Thread checkThread;
     
     private void SaveSettings()
     {
@@ -41,21 +46,14 @@ public class MainActivity extends Activity
     	editor.putBoolean("Switch 3", sw3.isChecked());
     	editor.putBoolean("Switch 4", sw4.isChecked());
     	
-    	editor.commit();    	
-    	et = null;
-    	bar = null;
-    	sw1 = null;
-    	sw2 = null;
-    	sw3 = null;
-    	sw4 = null;
-    	settings = null;
-    	editor = null;
+    	editor.apply();	
     }
     
     private void LoadSettings()
     {
 	    EditText et = (EditText) findViewById(R.id.editText1);
 	    SeekBar bar = (SeekBar) findViewById(R.id.seekBar1);
+		TextView tv = (TextView) findViewById(R.id.textView3);
 	    CheckBox check = (CheckBox) findViewById(R.id.checkBox1);
 	    Switch sw1 = (Switch) findViewById(R.id.switch1);
 	    Switch sw2 = (Switch) findViewById(R.id.switch2);
@@ -64,21 +62,24 @@ public class MainActivity extends Activity
 	    
     	SharedPreferences settings = getSharedPreferences("UserInfo", 0);
     	
-    	et.setText(settings.getString("ID", "").toString());
+    	et.setText(settings.getString("ID", "9rrv8k4cq5").toString());
     	bar.setProgress(settings.getInt("Frequency", 1));
     	check.setChecked(settings.getBoolean("Autostart", false));
     	sw1.setChecked(settings.getBoolean("Switch 1", false));
     	sw2.setChecked(settings.getBoolean("Switch 2", false));
     	sw3.setChecked(settings.getBoolean("Switch 3", false));
     	sw4.setChecked(settings.getBoolean("Switch 4", false));
-    	
-    	et = null;
-    	bar = null;
-    	sw1 = null;
-    	sw2 = null;
-    	sw3 = null;
-    	sw4 = null;
-    	settings = null;
+    			
+		switch (bar.getProgress())
+		{
+			case 0: tv.setText(R.string.text_30mins); break;
+			case 1: tv.setText(R.string.text_1hour); break;
+			case 2: tv.setText(R.string.text_2hours); break;
+			case 3: tv.setText(R.string.text_3hours); break;
+			case 4: tv.setText(R.string.text_6hours); break;
+			case 5: tv.setText(R.string.text_12hours); break;
+			case 6: tv.setText(R.string.text_1day); break;
+		}
     }
 
 	@Override
@@ -89,13 +90,42 @@ public class MainActivity extends Activity
 
 		LoadSettings();
 		
-		mServiceIntent = new Intent(this, MyService.class);
+		mServiceIntent = new Intent(this, BackgroundService.class);
+		checkID = new CheckID(this);
+		
+	    EditText et = (EditText) findViewById(R.id.editText1);
+	    et.addTextChangedListener(new TextWatcher()
+	    {
+	    	   public void afterTextChanged(Editable s)
+	    	   {
+	    		   if (s.length() != 10)
+	    		   {
+					    TextView tv = (TextView) findViewById(R.id.textView1);
+				    	tv.setText(R.string.stat_NOK);
+				    	tv.setTextColor(Color.RED);
+	    		   }
+	    		   else
+	    		   {
+	    			   checkID.ID = s.toString();	  	        
+	    			   checkThread = new Thread(checkID);
+	    			   checkThread.start();
+	    		   }
+	    	   }
+
+	    	   public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+	    	   public void onTextChanged(CharSequence s, int start, int before, int count) {}
+	    });
+
+	    checkID.ID = et.getText().toString();        
+        checkThread = new Thread(checkID);
+		checkThread.start();
 
 	    CheckBox check = (CheckBox) findViewById(R.id.checkBox1);
-	    check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-
-		       @Override
-		       public void onCheckedChanged(CompoundButton buttonView,boolean isChecked) {
+	    check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
+	    {
+		       public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
+		       {
 		    	   SaveSettings();
 		       }
 		   }
@@ -120,29 +150,16 @@ public class MainActivity extends Activity
 					case 5: tv.setText(R.string.text_12hours); break;
 					case 6: tv.setText(R.string.text_1day); break;
 				}
-				
-				tv = null;
 			}
 
-			public void onStartTrackingTouch(SeekBar seekBar) {
-			}
+			public void onStartTrackingTouch(SeekBar seekBar) {}
 
-			public void onStopTrackingTouch(SeekBar seekBar) {
-			    EditText et = (EditText) findViewById(R.id.editText1);
-			    
-				stopService(mServiceIntent);
-		        mServiceIntent.putExtra("ID", et.getText().toString());
-		        mServiceIntent.putExtra("timer", progress);
-		        startService(mServiceIntent);
-		        
-		        SaveSettings();
-		        et = null;
+			public void onStopTrackingTouch(SeekBar seekBar)
+			{
+				ApplySettings("timer", progress);
 			}
-		});     
-        
-        bar = null;
-        check = null;
-        
+		});
+       
         Start();
 	}
 	
@@ -154,21 +171,14 @@ public class MainActivity extends Activity
 	    Switch sw2 = (Switch) findViewById(R.id.switch2);
 	    Switch sw3 = (Switch) findViewById(R.id.switch3);
 	    Switch sw4 = (Switch) findViewById(R.id.switch4);
-	    
-    	mServiceIntent.putExtra("ID", et.getText().toString());
+
+        mServiceIntent.putExtra("ID", et.getText().toString());
         mServiceIntent.putExtra("mails", sw1.isChecked());
     	mServiceIntent.putExtra("grades", sw2.isChecked());
         mServiceIntent.putExtra("notepad", sw3.isChecked());
         mServiceIntent.putExtra("exams", sw4.isChecked());
         mServiceIntent.putExtra("timer", bar.getProgress());
-    	startService(mServiceIntent);
-
-        bar = null;
-    	et = null;
-    	sw1 = null;
-    	sw2 = null;
-    	sw3 = null;
-    	sw4 = null;
+		startService(mServiceIntent);
 	}
 
     public void onTrimMemory(int level)
@@ -177,70 +187,58 @@ public class MainActivity extends Activity
     	
     	switch (level)
     	{
-    		//case TRIM_MEMORY_UI_HIDDEN:
-    		//case TRIM_MEMORY_RUNNING_MODERATE:
-			// ??
-    	
     		case TRIM_MEMORY_RUNNING_CRITICAL:
     			SaveSettings();
     		    stopService(mServiceIntent);
-    			break;
+    		break;
     	}
     }
 	
 	public void onToggleClicked1(View view)
 	{
-	    boolean on = ((Switch) view).isChecked();
-	    EditText et = (EditText) findViewById(R.id.editText1);
-	    
-	    stopService(mServiceIntent);
-        mServiceIntent.putExtra("ID", et.getText().toString());
-        mServiceIntent.putExtra("mails", on);
-        startService(mServiceIntent);
-        
-        SaveSettings();
-        et = null;
+		boolean value = ((Switch) view).isChecked();
+		ApplySettings("mails", value);
 	}
 	
 	public void onToggleClicked2(View view)
 	{
-	    boolean on = ((Switch) view).isChecked();
-	    EditText et = (EditText) findViewById(R.id.editText1);
-	    
-	    stopService(mServiceIntent);
-        mServiceIntent.putExtra("ID", et.getText().toString());
-        mServiceIntent.putExtra("grades", on);
-        startService(mServiceIntent);
-        
-        SaveSettings();
-        et = null;
+		boolean value = ((Switch) view).isChecked();
+		ApplySettings("grades", value);
 	}
 	
 	public void onToggleClicked3(View view)
 	{
-	    boolean on = ((Switch) view).isChecked();
-	    EditText et = (EditText) findViewById(R.id.editText1);
-	    
-	    stopService(mServiceIntent);
-        mServiceIntent.putExtra("ID", et.getText().toString());
-        mServiceIntent.putExtra("notepad", on);
-        startService(mServiceIntent);
-        
-        SaveSettings();
-        et = null;
+		boolean value = ((Switch) view).isChecked();
+		ApplySettings("notepad", value);
 	}
 	
 	public void onToggleClicked4(View view)
 	{
-	    boolean on = ((Switch) view).isChecked();
-	    EditText et = (EditText) findViewById(R.id.editText1);
+		boolean value = ((Switch) view).isChecked();
+		ApplySettings("exams", value);
+	}
+	
+	private void ApplySettings(String name, int value)
+	{
+	    String ID = ((EditText) findViewById(R.id.editText1)).getText().toString();
 	    
 	    stopService(mServiceIntent);
-        mServiceIntent.putExtra("ID", et.getText().toString());
-        mServiceIntent.putExtra("exams", on);
-        startService(mServiceIntent);
+        mServiceIntent.putExtra(name, value);
+        mServiceIntent.putExtra("ID", ID);
+    	startService(mServiceIntent);
         
         SaveSettings();
-        et = null;
+	}
+	
+	private void ApplySettings(String name, Boolean value)
+	{
+	    String ID = ((EditText) findViewById(R.id.editText1)).getText().toString();
+	    
+	    stopService(mServiceIntent);
+        mServiceIntent.putExtra(name, value);
+        mServiceIntent.putExtra("ID", ID);
+    	startService(mServiceIntent);
+        
+        SaveSettings();
 	}
 }

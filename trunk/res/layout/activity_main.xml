@@ -9,7 +9,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toLeftOf="@+id/editText1"
-        android:layout_marginRight="10dp"
+        android:layout_marginRight="5dp"
         android:layout_marginTop="25dp"
         android:text="@string/ID_text"
         android:textAppearance="?android:attr/textAppearanceMedium" />
@@ -108,5 +108,15 @@
         android:layout_below="@+id/seekBar1"
         android:layout_marginTop="44dp"
         android:text="@string/text_auto" />
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/textView4"
+        android:layout_alignBottom="@+id/textView4"
+        android:layout_alignParentRight="true"
+        android:layout_toRightOf="@+id/editText1"
+        android:text="" />
 
 </RelativeLayout>

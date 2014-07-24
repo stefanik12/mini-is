@@ -16,6 +16,7 @@ public class ExamsFeed {
 	private static final String postfix = ";a=14";
 	private String[] oldExams = new String[10];
 	private URL www;
+	private int items = 0;
 
 	public ExamsFeed(String ID) throws MalformedURLException {
 		www = new URL(prefix + ID + postfix);
@@ -30,12 +31,18 @@ public class ExamsFeed {
 	{
 		return new HashSet<String>(Arrays.asList(oldExams));
 	}
+	
+	public int GetItems()
+	{
+		return items;
+	}
 
 	public List<String> Run() throws IOException
 	{
 		String[] newExams = new String[10];
 		String inputLine = null;
         String fullText = "";
+        items = 0;
 			
 		URLConnection yc = www.openConnection();
 	    BufferedReader in = new BufferedReader(new InputStreamReader(yc.getInputStream()));
@@ -59,6 +66,12 @@ public class ExamsFeed {
 	    
 	    int i = 0;
 	    
+	    if (fullText.contains("Žádné další zkušební termíny v období"))
+	    {
+	    	newExams[0] = "Žádné další zkušební termíny v období";
+	    	i = 1;
+	    }
+	    else
 	    while ((index = fullText.indexOf("\n")) != -1 && i < 10)
 	    {
 	    	if (fullText.indexOf("<P>") < index) break;
@@ -77,6 +90,7 @@ public class ExamsFeed {
 	    oldExams = newExams;
 	    newExams = null;
 	    
+	    items = results.size();
 	    return results;
 	}
 

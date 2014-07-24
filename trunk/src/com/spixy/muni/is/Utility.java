@@ -4,20 +4,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class Utility {
-	/*
-	public static String[] CompareA(String[] newNS, String[] oldNS, int length)
-	{
-		List<String> list = new LinkedList<String>();
-		
-		for (int i=0; i<length; i++)
-		{
-			if (IsInArray(newNS[i], oldNS)) continue;
-			list.add(newNS[i]);
-		}
-		
-		return list.toArray(new String[list.size()]);
-	}
-	*/
 	
 	public static List<String> CompareL(String[] newNS, String[] oldNS, int length)
 	{

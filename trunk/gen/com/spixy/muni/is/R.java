@@ -21,6 +21,7 @@ public final class R {
         public static final int switch2=0x7f060003;
         public static final int switch3=0x7f060004;
         public static final int switch4=0x7f060005;
+        public static final int textView1=0x7f06000a;
         public static final int textView2=0x7f060006;
         public static final int textView3=0x7f060007;
         public static final int textView4=0x7f060000;
@@ -35,7 +36,14 @@ public final class R {
         public static final int freq_text=0x7f040005;
         public static final int grades_text=0x7f040003;
         public static final int mails_text=0x7f040002;
+        public static final int new_events=0x7f040013;
+        public static final int new_exams=0x7f040012;
+        public static final int new_grades=0x7f040010;
+        public static final int new_msgs=0x7f04000f;
+        public static final int new_notes=0x7f040011;
         public static final int note_text=0x7f040004;
+        public static final int stat_NOK=0x7f040015;
+        public static final int stat_OK=0x7f040014;
         public static final int text_12hours=0x7f04000c;
         public static final int text_1day=0x7f04000d;
         public static final int text_1hour=0x7f040008;

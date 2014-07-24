@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Mini IS</string>
     <string name="ID_text">ID</string>
     <string name="mails_text">Pošta</string>
     <string name="grades_text">Známky</string>
@@ -16,5 +15,10 @@
     <string name="text_12hours">12 hodín</string>
     <string name="text_1day">1 deň</string>
     <string name="text_auto">Spustiť automaticky</string>
+    <string name="new_msgs">Nová pošta</string>
+    <string name="new_grades">Nové známky</string>
+    <string name="new_notes">Nové poznámky</string>
+    <string name="new_exams">Nové skúšky</string>
+    <string name="new_events">Nové udalosti</string>
 
 </resources>

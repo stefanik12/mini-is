@@ -1,6 +1,5 @@
 package com.spixy.muni.is;
 
-
 import java.net.MalformedURLException;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -11,96 +10,88 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
-public class MyWork implements Runnable
+public class MyWork extends Thread
 {
-	private String id;
+	public String id;
 	public Context parent;
-	
-    public boolean mails, grades, notepad, exams;
+    public boolean mails, grades, notepad, exams, running;
     public int timer;
-
-	public MyWork(String ID) {
-		id = ID;
-	}
+    
+    public MyWork(Context parent)
+    {
+    	super("Worker Thread");
+    	this.parent = parent;
+    }
 	
 	@Override
 	public void run()
 	{
-		// kvoli zmene UI a tak
-        try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			return;
-		}
-        
-		Log.i("IS Muni Background Service", "started");
-        
+		running = true;
 		MailsFeed mailsFeed = null;
 		GradesFeed gradesFeed = null;
 		NotesFeed notesFeed = null;
 		ExamsFeed examsFeed = null;
 		List<String> list = new LinkedList<String>();
+		int flag;
 			
 		if (mails)
 		{
 			try {
 				mailsFeed = new MailsFeed(id);
-			} catch (MalformedURLException e) {
-				Log.e("MailsFeed - MalformedURLException", e.getMessage());
-			}
+			} catch (MalformedURLException e) { }
 		}
 		
 		if (grades)
 		{
 			try {
 				gradesFeed = new GradesFeed(id);
-			} catch (MalformedURLException e) {
-				Log.e("GradesFeed - MalformedURLException", e.getMessage());
-			}
+			} catch (MalformedURLException e) { }
 		}
 		
 		if (notepad)
 		{
 			try {
 				notesFeed = new NotesFeed(id);
-			} catch (MalformedURLException e) {
-				Log.e("NotesFeed - MalformedURLException", e.getMessage());
-			}
+			} catch (MalformedURLException e) { }
 		}
 		
 		if (exams)
 		{
 			try {
 				examsFeed = new ExamsFeed(id);
-			} catch (MalformedURLException e) {
-				Log.e("NotesFeed - MalformedURLException", e.getMessage());
-			}
+			} catch (MalformedURLException e) { }
 		}
 
 		LoadSettings(mailsFeed, gradesFeed, notesFeed, examsFeed);
 		
-		while (true)
+		while (running)
 		{
+			flag = 0;
 			list.clear();
 			
 			if (mails)
 			{
 				try {
 					list.addAll( mailsFeed.Run() );
+					if (mailsFeed.GetItems() > 0)
+						flag += 1;
 				} catch (Exception e1) {
-					Log.e("mailsFeed Exception", e1.getMessage());
+					Log.e("MailsFeed", e1.getMessage());
 				}
 			}
 			
 			if (grades)
 			{
 				try {
-					list.addAll( gradesFeed.Run() );					
+					list.addAll( gradesFeed.Run() );
+					if (gradesFeed.GetItems() > 0)
+						flag += 2;
 				} catch (Exception e1) {
-					Log.e("gradesFeed Exception", e1.getMessage());
+					Log.e("GradesFeed", e1.getMessage());
 				}
 			}
 			
@@ -108,8 +99,10 @@ public class MyWork implements Runnable
 			{
 				try {
 					list.addAll( notesFeed.Run() );
+					if (notesFeed.GetItems() > 0)
+						flag += 4;
 				} catch (Exception e1) {
-					Log.e("notesFeed Exception", e1.getMessage());
+					Log.e("NotesFeed", e1.getMessage());
 				}
 			}
 			
@@ -117,8 +110,10 @@ public class MyWork implements Runnable
 			{
 				try {
 					list.addAll( examsFeed.Run() );
+					if (examsFeed.GetItems() > 0)
+						flag += 8;
 				} catch (Exception e1) {
-					Log.e("notesFeed Exception", e1.getMessage());
+					Log.e("ExamsFeed", e1.getMessage());
 				}
 			}
 
@@ -127,14 +122,13 @@ public class MyWork implements Runnable
 			
 			if (list.size() > 0)
 			{
-				CreateNotification(list);
+				CreateNotification(list, flag);
 				SaveSettings(mailsFeed, gradesFeed, notesFeed, examsFeed);
 			}
 			
 			try {
 				Thread.sleep(timer*1000);
 			} catch (InterruptedException e) {
-				return;
 			}
 		}
 	}
@@ -156,9 +150,7 @@ public class MyWork implements Runnable
     	if (examsFeed != null)
     		editor.putStringSet("Exams", examsFeed.GetHistory());
     	
-    	editor.commit(); 	
-    	settings = null;
-    	editor = null;
+    	editor.apply();
     }
 	
 	private void LoadSettings(MailsFeed mailsFeed, GradesFeed gradesFeed, NotesFeed notesFeed, ExamsFeed examsFeed)
@@ -176,34 +168,76 @@ public class MyWork implements Runnable
     	
     	if (examsFeed != null)
     		examsFeed.SetHistory( settings.getStringSet("Exams", new HashSet<String>()) );
-    	
-    	settings = null;
     }
 	
-	private void CreateNotification(List<String> list)
+	private void CreateNotification(List<String> list, int flag)
 	{
-		NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(parent)
+		String text, url = "https://is.muni.cz";
+		
+		switch (flag)
+		{
+			case 1:  // new messages only
+				if (list.size() == 1) text = list.get(0);
+				else text = parent.getResources().getString(R.string.new_msgs);
+				url += "/m/posta.pl?m=" + id + ";a=52";
+				break;
+				
+			case 2:  // new grades only
+				if (list.size() == 1) text = list.get(0);
+				else text = parent.getResources().getString(R.string.new_grades);
+				url += "/m/?m=" + id + ";a=4";
+				break;
+				
+			case 4:  // new notes only
+				if (list.size() == 1) text = list.get(0);
+				else text = parent.getResources().getString(R.string.new_notes);
+				url += "/m/?m=" + id + ";a=8";
+				break;
+				
+			case 8:  // new exams only
+				if (list.size() == 1) text = list.get(0);
+				else text = parent.getResources().getString(R.string.new_exams);
+				url += "/m/?m=" + id + ";a=14";
+				break;
+				
+			default:  // new events
+				text = parent.getResources().getString(R.string.new_events);
+				url += "/m/?" + id;
+				break;
+		}
+		
+		/*
+		// notification cleared
+		Intent clearedIntent = new Intent(parent, NotificationCleared.class);
+		PendingIntent pendingIntent = PendingIntent.getBroadcast(parent.getApplicationContext(), 0, clearedIntent, 0);
+		*/	
+	    
+	    // notification clicked
+	    Intent targetIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+	    PendingIntent contentIntent = PendingIntent.getActivity(parent, 0, targetIntent, PendingIntent.FLAG_UPDATE_CURRENT);	    
+	    
+	    // setup
+	    NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(parent)
 	    .setSmallIcon(R.drawable.ic_launcher)
 	    .setContentTitle("IS Muni Notifications")
-	    .setContentText("New events")
-	    .setAutoCancel(true);
-
-		NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
-		inboxStyle.setBigContentTitle("Lasts events:");
-		
-		for (int i=0; i < list.size(); i++)
-			inboxStyle.addLine(list.get(i));
-		mBuilder.setStyle(inboxStyle);
-
-	    Intent targetIntent = new Intent(parent, MainActivity.class);
-	    PendingIntent contentIntent = PendingIntent.getActivity(parent, 0, targetIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-	    mBuilder.setContentIntent(contentIntent);
-	    NotificationManager nManager = (NotificationManager) parent.getSystemService(Context.NOTIFICATION_SERVICE);
-	    nManager.notify(12345, mBuilder.build());
+	    .setContentText(text)
+	    .setAutoCancel(true)
+	    //.setDeleteIntent(pendingIntent)
+	    .setContentIntent(contentIntent);
 	    
-	    mBuilder = null;
-	    inboxStyle = null;
-	    targetIntent = null;
-	    nManager = null;
+	    // fill lines to extended notification
+	 	if (list.size() > 1)
+	 	{
+	 		NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
+	 		inboxStyle.setBigContentTitle(text);
+	 		
+	 		for (int i=0; i < list.size(); i++)
+	 			inboxStyle.addLine(list.get(i));
+	 			
+	 		mBuilder.setStyle(inboxStyle);
+	 	}
+	    
+	    NotificationManager nManager = (NotificationManager) parent.getSystemService(Context.NOTIFICATION_SERVICE);
+	    nManager.notify(65535, mBuilder.build());
 	}
 }

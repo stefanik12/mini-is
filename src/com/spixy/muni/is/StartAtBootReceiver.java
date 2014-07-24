@@ -4,14 +4,31 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.util.Log;
 
-public class StartMyServiceAtBootReceiver extends BroadcastReceiver
+public class StartAtBootReceiver extends BroadcastReceiver
 {
+	public StartAtBootReceiver()
+	{
+		Log.w("BroadcastReceiver","BroadcastReceiver started 1");
+	}
+	
 	@Override
     public void onReceive(Context context, Intent intent)
 	{
+		Log.w("BroadcastReceiver","BroadcastReceiver started 2");
+		
+		if (context == null)
+			Log.e("BroadcastReceiver", "context = null");
+		
+		if (intent == null)
+			Log.e("BroadcastReceiver", "intent = null");
+		
+		if (context == null || intent == null)
+			return;
+		
         if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction()))
-        {     
+        {
         	SharedPreferences settings = context.getSharedPreferences("UserInfo", 0);
 
         	if (settings.getBoolean("Autostart", true) == false)
@@ -29,13 +46,19 @@ public class StartMyServiceAtBootReceiver extends BroadcastReceiver
 
         	settings = null;
         	
-            Intent mServiceIntent = new Intent(context, MyService.class);
+        	try {
+    			Thread.sleep(10000); // 10 sek.
+    		} catch (InterruptedException e) {
+    			return;
+    		}
+        	
+            Intent mServiceIntent = new Intent(context, BackgroundService.class);
             mServiceIntent.putExtra("ID", id);
-	        mServiceIntent.putExtra("timer", freq);
             mServiceIntent.putExtra("mails", sw1);
         	mServiceIntent.putExtra("grades", sw2);
             mServiceIntent.putExtra("notepad", sw3);
             mServiceIntent.putExtra("exams", sw4);
+	        mServiceIntent.putExtra("timer", freq);
 	        context.startService(mServiceIntent);
         }
     }

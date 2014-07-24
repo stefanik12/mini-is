@@ -16,5 +16,12 @@
     <string name="text_12hours">12 hours</string>
     <string name="text_1day">1 day</string>
     <string name="text_auto">Start automatically</string>
+    <string name="new_msgs">New messages</string>
+    <string name="new_grades">New grades</string>
+    <string name="new_notes">New notes</string>
+    <string name="new_exams">New exams</string>
+    <string name="new_events">New events</string>
+    <string name="stat_OK">:)</string>
+    <string name="stat_NOK">:(</string>
 
 </resources>

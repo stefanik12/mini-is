@@ -15,9 +15,10 @@ import java.util.Set;
 public class NotesFeed {
 	private static final String prefix = "https://is.muni.cz/m/?m=";
 	private static final String postfix = ";a=8";
-	private String[] oldNotes = new String[6];
+	private String[] oldNotes;
 	private String id;
 	private URL www;
+	private int items = 0;
 	
 	public NotesFeed(String ID) throws MalformedURLException {
 		www = new URL(prefix + id + postfix);
@@ -32,6 +33,11 @@ public class NotesFeed {
 	public Set<String> GetHistory()
 	{
 		return new HashSet<String>(Arrays.asList(oldNotes));
+	}
+
+	public int GetItems()
+	{
+		return items;
 	}
 	
 	private int parse(String page, List<String> notes) throws IOException
@@ -90,11 +96,12 @@ public class NotesFeed {
 	public List<String> Run() throws IOException
 	{
 		List<String> notes = new LinkedList<String>();
-		
+
+        items = 0;
 		int s = 0;
 		int page = 0;
 		
-		while (s < 100)
+		while (s < 30)
 		{
 			try
 			{
@@ -112,7 +119,8 @@ public class NotesFeed {
 		notes = Utility.CompareL(array, oldNotes, array.length);
 	    oldNotes = array;
 	    array = null;
-	    
+
+        items = notes.size();
 	    return notes;
 	}
 	

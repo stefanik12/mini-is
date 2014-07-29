@@ -39,10 +39,10 @@ public class ExamsFeed {
 
 	public List<String> Run() throws IOException
 	{
+        items = 0;
 		String[] newExams = new String[10];
 		String inputLine = null;
         String fullText = "";
-        items = 0;
 			
 		URLConnection yc = www.openConnection();
 	    BufferedReader in = new BufferedReader(new InputStreamReader(yc.getInputStream()));

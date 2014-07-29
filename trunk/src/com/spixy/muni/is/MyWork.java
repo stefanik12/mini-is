@@ -36,7 +36,7 @@ public class MyWork extends Thread
 		NotesFeed notesFeed = null;
 		ExamsFeed examsFeed = null;
 		List<String> list = new LinkedList<String>();
-		int flag;
+		int flags;
 		
 		if (grades)
 		{
@@ -70,48 +70,48 @@ public class MyWork extends Thread
 		
 		while (running)
 		{
-			flag = 0;
+			flags = 0;
 			list.clear();
 			
-			if (grades)
+			if (gradesFeed != null)
 			{
 				try {
 					list.addAll( gradesFeed.Run() );
 					if (gradesFeed.GetItems() > 0)
-						flag += 2;
+						flags += 2;
 				} catch (Exception e1) {
 					Log.e("GradesFeed", e1.getMessage());
 				}
 			}
 			
-			if (mails)
+			if (mailsFeed != null)
 			{
 				try {
 					list.addAll( mailsFeed.Run() );
 					if (mailsFeed.GetItems() > 0)
-						flag += 1;
+						flags += 1;
 				} catch (Exception e1) {
 					Log.e("MailsFeed", e1.getMessage());
 				}
 			}	
 			
-			if (notepad)
+			if (notesFeed != null)
 			{
 				try {
 					list.addAll( notesFeed.Run() );
 					if (notesFeed.GetItems() > 0)
-						flag += 4;
+						flags += 4;
 				} catch (Exception e1) {
 					Log.e("NotesFeed", e1.getMessage());
 				}
 			}
 			
-			if (exams)
+			if (examsFeed != null)
 			{
 				try {
 					list.addAll( examsFeed.Run() );
 					if (examsFeed.GetItems() > 0)
-						flag += 8;
+						flags += 8;
 				} catch (Exception e1) {
 					Log.e("ExamsFeed", e1.getMessage());
 				}
@@ -122,7 +122,7 @@ public class MyWork extends Thread
 			
 			if (list.size() > 0)
 			{
-				CreateNotification(list, flag);
+				CreateNotification(list, flags);
 				SaveSettings(mailsFeed, gradesFeed, notesFeed, examsFeed);
 			}
 			
@@ -170,11 +170,11 @@ public class MyWork extends Thread
     		examsFeed.SetHistory( settings.getStringSet("Exams", new HashSet<String>()) );
     }
 	
-	private void CreateNotification(List<String> list, int flag)
+	private void CreateNotification(List<String> list, int flags)
 	{
 		String text, url = "https://is.muni.cz";
 		
-		switch (flag)
+		switch (flags)
 		{
 			case 1:  // new messages only
 				if (list.size() == 1) text = list.get(0);
@@ -210,7 +210,7 @@ public class MyWork extends Thread
 		// notification cleared
 		Intent clearedIntent = new Intent(parent, NotificationCleared.class);
 		PendingIntent pendingIntent = PendingIntent.getBroadcast(parent.getApplicationContext(), 0, clearedIntent, 0);
-		*/	
+		*/
 	    
 	    // notification clicked
 	    Intent targetIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
